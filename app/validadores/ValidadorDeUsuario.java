@@ -1,5 +1,7 @@
 package validadores;
 
+import java.util.Optional;
+
 import javax.inject.Inject;
 
 import models.Usuario;
@@ -11,6 +13,17 @@ public class ValidadorDeUsuario {
 
 	@Inject 
 	private UsuarioDAO usuarioDAO;
+
+	public boolean isUsuarioVerificado(Usuario usuario) {
+		boolean resp = false;
+		if(usuario != null && usuario.getEmail() != null) {
+			Optional<Usuario> u = usuarioDAO.retrieveByEmail(usuario.getEmail());
+			if(u.isPresent()) {
+				resp = u.get().isVerificado();
+			}
+		}
+		return resp;
+	}
 
 	public boolean hasError(Form<Usuario> formulario) {
 		validaEmail(formulario);

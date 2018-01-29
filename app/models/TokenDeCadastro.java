@@ -5,12 +5,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 import com.avaje.ebean.Model;
 
+@Entity(name="token_de_cadastro")
 public class TokenDeCadastro extends Model {
 
 	@Id
@@ -18,16 +20,18 @@ public class TokenDeCadastro extends Model {
 	private Long id;
 
 	@OneToOne
-	private Usuario user;
-	private String codigo;
+	private Usuario usuario;
+
+	private String token;
+
+	public TokenDeCadastro() {}
 
 	public TokenDeCadastro(Usuario user) {
-		this.user = user;
+		this.usuario = user;
 		try {
 			String source = user.getNome() + user.getEmail();
 			byte[] bytes = source.getBytes("UTF-8");
-			this.codigo = UUID.nameUUIDFromBytes(bytes);
-
+			this.token = UUID.nameUUIDFromBytes(bytes).toString();
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -39,16 +43,20 @@ public class TokenDeCadastro extends Model {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Usuario getUser() {
-		return user;
+
+	public Usuario getUsuario() {
+		return usuario;
 	}
-	public void setUser(Usuario user) {
-		this.user = user;
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
-	public String getCodigo() {
-		return codigo;
+
+	public String getToken() {
+		return token;
 	}
-	public void setCodigo(String codigo) {
-		this.codigo = codigo;
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 }

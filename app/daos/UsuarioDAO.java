@@ -15,4 +15,14 @@ public class UsuarioDAO {
 		return Optional.ofNullable(user);
 	}
 
+	public Optional<Usuario> retrieveByEmailAndEncodedPass(String email, String encodedPass) {
+		Usuario user = userFinder
+				.query()
+				.where()
+				.eq("email", email)
+				.eq("senha", encodedPass)
+				.findUnique();
+		return Optional.ofNullable(user);
+	}
+
 }
