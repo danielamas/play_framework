@@ -19,8 +19,8 @@ public class UsuarioDAO {
 		Usuario user = userFinder
 				.query()
 				.where()
-				.eq("email", email)
-				.eq("senha", encodedPass)
+				.eq("email", email != null ? email : "")
+				.eq("senha", encodedPass != null ? encodedPass : "") 
 				.findUnique();
 		return Optional.ofNullable(user);
 	}

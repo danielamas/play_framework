@@ -31,18 +31,27 @@ public class Usuario extends Model {
 		this.id = id;
 	}
 	public String getNome() {
+		if(nome != null) {
+			nome = nome.trim();
+		}
 		return nome;
 	}
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
 	public String getEmail() {
+		if(email != null) {
+			email = email.trim();
+		}
 		return email;
 	}
 	public void setEmail(String email) {
 		this.email = email;
 	}
 	public String getSenha() {
+		if(senha != null) {
+			senha = senha.trim();
+		}
 		return senha;
 	}
 	public void setSenha(String senha) {

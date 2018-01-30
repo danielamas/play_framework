@@ -2,10 +2,12 @@ package controllers;
 
 import javax.inject.Inject;
 
+import autenticadores.UsuarioAutenticado;
 import models.Produto;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.*;
+import play.mvc.Security.Authenticated;
 import validadores.ValidadorDeProduto;
 import views.html.*;
 
@@ -15,7 +17,8 @@ public class ProdutoController extends Controller {
 	private FormFactory formularios;
 	@Inject
 	private ValidadorDeProduto validadorDeProduto;
-	
+
+	@Authenticated(UsuarioAutenticado.class)
 	public Result salvaNovoProduto() {
 		Form<Produto> formulario = formularios.form(Produto.class).bindFromRequest();
 		Produto produto = formulario.get();
@@ -27,7 +30,8 @@ public class ProdutoController extends Controller {
 		flash("success", "Seu produto '"+produto.getTitulo()+"' foi cadastrado com sucesso!");
 		return redirect(routes.ProdutoController.formularioDeNovoProduto());
 	}
-	
+
+	@Authenticated(UsuarioAutenticado.class)
 	public Result formularioDeNovoProduto() {
 		Produto produto = new Produto();
 		produto.setTipo("e-book");

@@ -17,7 +17,7 @@ public class ValidadorDeUsuario {
 	public boolean isUsuarioVerificado(Usuario usuario) {
 		boolean resp = false;
 		if(usuario != null && usuario.getEmail() != null) {
-			Optional<Usuario> u = usuarioDAO.retrieveByEmail(usuario.getEmail());
+			Optional<Usuario> u = usuarioDAO.retrieveByEmail(usuario.getEmail().trim());
 			if(u.isPresent()) {
 				resp = u.get().isVerificado();
 			}
@@ -33,7 +33,7 @@ public class ValidadorDeUsuario {
 
 	private void validaEmail(Form<Usuario> formulario) {
 		Usuario user = formulario.get();
-		if (usuarioDAO.retrieveByEmail(user.getEmail()).isPresent()) {
+		if (usuarioDAO.retrieveByEmail(user.getEmail().trim()).isPresent()) {
 			formulario.reject(new ValidationError("email", "Este email já foi cadastrado"));
 		}
 	}

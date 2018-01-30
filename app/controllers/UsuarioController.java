@@ -1,12 +1,8 @@
 package controllers;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 import javax.inject.Inject;
-import javax.xml.bind.DatatypeConverter;
 
 import models.EmailDeCadastro;
 import models.TokenDeCadastro;
@@ -14,14 +10,19 @@ import models.Usuario;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
+import play.data.validation.ValidationError;
 import play.libs.mailer.MailerClient;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security.Authenticated;
+import util.Util;
 import validadores.ValidadorDeUsuario;
-import views.html.formularioDeNovoUsuario;
 import views.html.formularioDeLogin;
+import views.html.formularioDeNovoUsuario;
+import views.html.painel;
+import autenticadores.UsuarioAutenticado;
 import daos.TokenDAO;
+import daos.UsuarioDAO;
 
 public class UsuarioController extends Controller {
 
@@ -36,6 +37,9 @@ public class UsuarioController extends Controller {
 
 	@Inject
 	private TokenDAO tokenDAO;
+
+	@Inject
+	private UsuarioDAO usuarioDAO;
 
 
 	public static final String AUTH = "auth";
@@ -54,12 +58,9 @@ public class UsuarioController extends Controller {
 
 		Usuario usuario = formulario.get();
 		try {
-			MessageDigest md = MessageDigest.getInstance("SHA-256");
-			byte[] hash = md.digest(usuario.getSenha().getBytes(StandardCharsets.UTF_8));
-			String hashStr = DatatypeConverter.printHexBinary(hash);
-			usuario.setSenha(hashStr);
+			usuario.setSenha(Util.encodeString(usuario.getSenha().trim()));
 			usuario.save();
-		} catch (NoSuchAlgorithmException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			flash("Atenção", "Ocorreu um erro interno");
 			return badRequest(formularioDeNovoUsuario.render(formulario));
@@ -84,16 +85,16 @@ public class UsuarioController extends Controller {
 		}
 
 		flash("success", "Usuário cadastrado com sucesso");
-		return redirect("/login");
+		return redirect(routes.UsuarioController.formularioDeLogin());
 	}
 
 	public Result confirmaCadastro(String email, String token) {
 		Usuario usuario = new Usuario();
 		if(email != null && !email.isEmpty()) {
-			usuario.setEmail(email);
+			usuario.setEmail(email.trim());
 
 			if(!validadorDeUsuario.isUsuarioVerificado(usuario) && token != null && !token.isEmpty()) {
-				Optional<TokenDeCadastro> t = tokenDAO.retrieveByEmailAndToken(email, token);
+				Optional<TokenDeCadastro> t = tokenDAO.retrieveByEmailAndToken(email, token.trim());
 				if (t.isPresent()) {
 					t.get().delete();
 
@@ -111,24 +112,64 @@ public class UsuarioController extends Controller {
 		}
 
 		flash("Error!", "Token não reconhecido");
-		return redirect("/login");
+		return redirect(routes.UsuarioController.formularioDeLogin());
 	}
 
-	@Authenticated
+	@Authenticated(UsuarioAutenticado.class)
 	public Result painel() {
-		return ok("Painel do usuário");
+		return ok(painel.render());
 	}
 
 	public Result formularioDeLogin() {
-//		return ok();
 		return ok(formularioDeLogin.render(formularios.form()));
 	}
 
 	public Result fazLogin() {
 		DynamicForm formulario = formularios.form().bindFromRequest();
+		Usuario usuario = new Usuario();
+		usuario.setEmail(formulario.get("email"));
+		usuario.setSenha(formulario.get("senha"));
+		try {
+			if(usuario != null) {
+				//validation
+				if(usuario.getEmail() == null || usuario.getEmail().isEmpty()) {
+					formulario.reject(new ValidationError("email", "Email é obrigatório!"));
+				}/* else {
+					validate email structure by regex
+				}*/
 
-//		return redirect(routes.UsuarioController.painelDoUsuario());
+				String encodedPassword = null;
+				if(usuario.getSenha() == null || usuario.getEmail().isEmpty()) {
+					formulario.reject(new ValidationError("senha", "Senha é obrigatório!"));
+				} else {
+					encodedPassword = Util.encodeString(usuario.getSenha());
+				}
+
+				Optional<Usuario> uDB = usuarioDAO.retrieveByEmailAndEncodedPass(usuario.getEmail(), encodedPassword);
+				if(uDB != null && uDB.isPresent()) {
+					usuario = uDB.get();
+					if(usuario.isVerificado()) {
+						session(AUTH, usuario.getEmail());
+						flash("success", "Login efetuado com sucesso!");
+						return redirect(routes.UsuarioController.painel());
+					} else {
+						flash("danger", "Usuário não confirmado!");
+					}
+				} else {
+					flash("danger", "Credenciais inválidas! Usuário não encontrado!");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			flash("danger", "Erro Interno!.");
+		}
 		return redirect(routes.UsuarioController.formularioDeLogin());
-		
+	}
+
+	@Authenticated(UsuarioAutenticado.class)
+	public Result fazLogout() {
+		session().remove(AUTH);
+		flash("success", "Logout efetuado com sucesso.");
+		return redirect(routes.UsuarioController.formularioDeLogin());
 	}
 }
