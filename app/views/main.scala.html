@@ -15,11 +15,15 @@
 					<li><a href="@routes.ProdutoController.formularioDeNovoProduto">Novo produto</a></li>
 					<li><a href="@routes.UsuarioController.painel">Painel</a></li>
 					<li><a href="@routes.UsuarioController.fazLogout">Logout</a></li>
+				} else {
+					<li><a href="@routes.UsuarioController.formularioDeNovoUsuario">Novo Usuário</a></li>
 				}
 			</ul>
 		</div>
 	</header>
 	@notificacoes()
 	<main class="container"> @content </main>
+	<script type="text/javascript" src="@routes.Assets.versioned("bootstrap/js/jquery.min.js")"></script>
+	<script type="text/javascript" src="@routes.Assets.versioned("bootstrap/js/bootstrap.min.js")"></script>
 </body>
 </html>

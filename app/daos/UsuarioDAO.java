@@ -15,6 +15,15 @@ public class UsuarioDAO {
 		return Optional.ofNullable(user);
 	}
 
+	public Optional<Usuario> retrieveByTokenCodigo(String codigo) {
+		Usuario user = userFinder.
+				query().
+				where().
+				eq("token.codigo", codigo).
+				findUnique();
+		return Optional.ofNullable(user);
+	}
+
 	public Optional<Usuario> retrieveByEmailAndEncodedPass(String email, String encodedPass) {
 		Usuario user = userFinder
 				.query()

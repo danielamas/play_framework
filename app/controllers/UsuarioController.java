@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import models.EmailDeCadastro;
+import models.TokenDaApi;
 import models.TokenDeCadastro;
 import models.Usuario;
 import play.data.DynamicForm;
@@ -100,7 +101,11 @@ public class UsuarioController extends Controller {
 
 					if(t.get().getUsuario() != null && t.get().getUsuario().getId() != null) {
 						t.get().getUsuario().setVerificado(true);
+						TokenDaApi tokenDaApi = new TokenDaApi(t.get().getUsuario());
+						tokenDaApi.save();
+						t.get().getUsuario().setToken(tokenDaApi);
 						t.get().getUsuario().update();
+						insereUsuarioNaSessao(usuario);
 						flash("success", "Seu usuário foi confirmado com sucesso! Bem vindo!");
 						return redirect("/usuario/painel");
 					}
@@ -117,7 +122,9 @@ public class UsuarioController extends Controller {
 
 	@Authenticated(UsuarioAutenticado.class)
 	public Result painel() {
-		return ok(painel.render());
+		String codigo = session(AUTH);
+		Usuario usuario = usuarioDAO.retrieveByTokenCodigo(codigo).get();
+		return ok(painel.render(usuario));
 	}
 
 	public Result formularioDeLogin() {
@@ -149,7 +156,7 @@ public class UsuarioController extends Controller {
 				if(uDB != null && uDB.isPresent()) {
 					usuario = uDB.get();
 					if(usuario.isVerificado()) {
-						session(AUTH, usuario.getEmail());
+						insereUsuarioNaSessao(usuario);
 						flash("success", "Login efetuado com sucesso!");
 						return redirect(routes.UsuarioController.painel());
 					} else {
@@ -164,6 +171,10 @@ public class UsuarioController extends Controller {
 			flash("danger", "Erro Interno!.");
 		}
 		return redirect(routes.UsuarioController.formularioDeLogin());
+	}
+
+	private void insereUsuarioNaSessao(Usuario usuario) {
+		session(AUTH, usuario.getToken().getCodigo());
 	}
 
 	@Authenticated(UsuarioAutenticado.class)

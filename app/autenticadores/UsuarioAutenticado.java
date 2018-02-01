@@ -20,9 +20,9 @@ public class UsuarioAutenticado extends Authenticator {
 
 	@Override
 	public String getUsername(Context context) {
-		String usuarioEmail = context.session().get(UsuarioController.AUTH);
-		if(usuarioEmail != null && !usuarioEmail.isEmpty()) {
-			Optional<Usuario> uDB = usuarioDAO.retrieveByEmail(usuarioEmail.trim());
+		String usuarioCodigo = context.session().get(UsuarioController.AUTH);
+		if(usuarioCodigo != null && !usuarioCodigo.isEmpty()) {
+			Optional<Usuario> uDB = usuarioDAO.retrieveByTokenCodigo(usuarioCodigo.trim());
 			if(uDB.isPresent()) {
 				return uDB.get().getNome();
 			}

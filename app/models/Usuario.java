@@ -1,13 +1,17 @@
 package models;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
+import com.avaje.ebean.Model;
 
 import play.data.validation.Constraints.Email;
 import play.data.validation.Constraints.Required;
-
-import com.avaje.ebean.Model;
 
 @Entity
 public class Usuario extends Model {
@@ -21,6 +25,12 @@ public class Usuario extends Model {
 	private String email;
 	@Required(message = "Você precisa fornecer uma senha")
 	private String senha;
+
+	@OneToOne(mappedBy = "usuario")
+	private TokenDaApi token;
+
+	@OneToMany(mappedBy = "usuario")
+	private List<RegistroDeAcesso> acessos;
 
 	private boolean verificado;
 
@@ -63,5 +73,16 @@ public class Usuario extends Model {
 	public void setVerificado(boolean verificado) {
 		this.verificado = verificado;
 	}
-	
+	public TokenDaApi getToken() {
+		return token;
+	}
+	public void setToken(TokenDaApi token) {
+		this.token = token;
+	}
+	public List<RegistroDeAcesso> getAcessos() {
+		return acessos;
+	}
+	public void setAcessos(List<RegistroDeAcesso> acessos) {
+		this.acessos = acessos;
+	}
 }
