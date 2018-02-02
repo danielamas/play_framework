@@ -25,14 +25,12 @@ public class Usuario extends Model {
 	private String email;
 	@Required(message = "Você precisa fornecer uma senha")
 	private String senha;
-
 	@OneToOne(mappedBy = "usuario")
 	private TokenDaApi token;
-
 	@OneToMany(mappedBy = "usuario")
 	private List<RegistroDeAcesso> acessos;
-
 	private boolean verificado;
+	private boolean admin;
 
 	public Long getId() {
 		return id;
@@ -84,5 +82,11 @@ public class Usuario extends Model {
 	}
 	public void setAcessos(List<RegistroDeAcesso> acessos) {
 		this.acessos = acessos;
+	}
+	public boolean isAdmin() {
+		return admin;
+	}
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
 	}
 }

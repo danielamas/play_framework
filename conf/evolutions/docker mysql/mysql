@@ -1,0 +1,7 @@
+docker run -v $PWD/var/lib/mysql:/var/lib/mysql -v $PWD/etc/mysql:/etc/mysql -e MYSQL_ROOT_PASSWORD=1234 -p 3306:3306 -d mysql
+
+sudo apt-get install mysql-client
+mysql -h 0.0.0.0 -u root -p
+
+create database produtos_api;
+use produtos_api;

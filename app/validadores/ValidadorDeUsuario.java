@@ -14,12 +14,12 @@ public class ValidadorDeUsuario {
 	@Inject 
 	private UsuarioDAO usuarioDAO;
 
-	public boolean isUsuarioVerificado(Usuario usuario) {
-		boolean resp = false;
+	public Usuario isUsuarioVerificado(Usuario usuario) {
+		Usuario resp = null;
 		if(usuario != null && usuario.getEmail() != null) {
 			Optional<Usuario> u = usuarioDAO.retrieveByEmail(usuario.getEmail().trim());
 			if(u.isPresent()) {
-				resp = u.get().isVerificado();
+				resp = u.get();
 			}
 		}
 		return resp;

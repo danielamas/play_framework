@@ -1,4 +1,9 @@
 @(title: String)(content: Html)
+
+@usuario() = @{
+	Http.Context.current().args.get("usuario").asInstanceOf[Usuario]
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,9 +16,12 @@
 	<header class="navbar navbar-default">
 		<div class="container" role="presentation">
 			<ul class="nav navbar-nav navbar-right">
-				@if(request().username()) {
-					<li><a href="@routes.ProdutoController.formularioDeNovoProduto">Novo produto</a></li>
+				@if(usuario() != null) {
 					<li><a href="@routes.UsuarioController.painel">Painel</a></li>
+					@if(usuario().isAdmin()) {
+						<li><a href="@routes.AdminController.usuarios">Lista Usuários</a></li>
+						<li><a href="@routes.AdminController.produtos">Lista Produtos</a></li>
+					}
 					<li><a href="@routes.UsuarioController.fazLogout">Logout</a></li>
 				} else {
 					<li><a href="@routes.UsuarioController.formularioDeNovoUsuario">Novo Usuário</a></li>
@@ -22,7 +30,9 @@
 		</div>
 	</header>
 	@notificacoes()
-	<main class="container"> @content </main>
+	<main class="container"> 
+		@content 
+	</main>
 	<script type="text/javascript" src="@routes.Assets.versioned("bootstrap/js/jquery.min.js")"></script>
 	<script type="text/javascript" src="@routes.Assets.versioned("bootstrap/js/bootstrap.min.js")"></script>
 </body>

@@ -4,6 +4,9 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import autenticadores.UsuarioAutenticado;
+import daos.TokenDAO;
+import daos.UsuarioDAO;
 import models.EmailDeCadastro;
 import models.TokenDaApi;
 import models.TokenDeCadastro;
@@ -21,9 +24,6 @@ import validadores.ValidadorDeUsuario;
 import views.html.formularioDeLogin;
 import views.html.formularioDeNovoUsuario;
 import views.html.painel;
-import autenticadores.UsuarioAutenticado;
-import daos.TokenDAO;
-import daos.UsuarioDAO;
 
 public class UsuarioController extends Controller {
 
@@ -94,7 +94,8 @@ public class UsuarioController extends Controller {
 		if(email != null && !email.isEmpty()) {
 			usuario.setEmail(email.trim());
 
-			if(!validadorDeUsuario.isUsuarioVerificado(usuario) && token != null && !token.isEmpty()) {
+			usuario = validadorDeUsuario.isUsuarioVerificado(usuario);
+			if(!usuario.isVerificado() && token != null && !token.isEmpty()) {
 				Optional<TokenDeCadastro> t = tokenDAO.retrieveByEmailAndToken(email, token.trim());
 				if (t.isPresent()) {
 					t.get().delete();
@@ -105,13 +106,14 @@ public class UsuarioController extends Controller {
 						tokenDaApi.save();
 						t.get().getUsuario().setToken(tokenDaApi);
 						t.get().getUsuario().update();
-						insereUsuarioNaSessao(usuario);
+						insereUsuarioNaSessao(t.get().getUsuario());
 						flash("success", "Seu usuário foi confirmado com sucesso! Bem vindo!");
 						return redirect("/usuario/painel");
 					}
 				}
 			} else {
 				flash("success", "Seu usuário já foi confirmado com sucesso!");
+				insereUsuarioNaSessao(usuario);
 				return redirect("/usuario/painel");
 			}
 		}

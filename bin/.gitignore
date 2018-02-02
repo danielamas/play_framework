@@ -1,2 +1,12 @@
-/models/
+/evolutions/
 /views/
+/controllers/
+/daos/
+/models/
+/acoes/
+/autenticadores/
+/dto/
+/filters/
+/services/
+/util/
+/validadores/
