@@ -10,6 +10,9 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.0")
 addSbtPlugin("com.typesafe.sbt" % "sbt-mocha" % "1.1.0")
 addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.2")
 
+//This will produce one jar as an output artifact, and allow you to execute it directly using the java command.
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.11.2")
+
 // Play enhancer - this automatically generates getters/setters for public fields
 // and rewrites accessors of these fields to use the getters/setters. Remove this
 // plugin if you prefer not to have this feature, or disable on a per project

@@ -1,6 +1,6 @@
 name := """produtos-api"""
 
-version := "1.0-SNAPSHOT"
+version := "1.0"
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
@@ -15,6 +15,12 @@ libraryDependencies ++= Seq(
   "org.apache.cassandra" % "cassandra-all" % "0.7.3",
   "com.typesafe.play" % "play-mailer_2.11" % "5.0.0-M1"
 )
+
+//This will produce one jar as an output artifact, and allow you to execute it directly using the java command.
+import AssemblyKeys._
+assemblySettings
+mainClass in assembly := Some("play.core.server.NettyServer")
+fullClasspath in assembly += Attributed.blank(PlayKeys.playPackageAssets.value)
 
 EclipseKeys.preTasks := Seq(compile in Compile)
 EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
